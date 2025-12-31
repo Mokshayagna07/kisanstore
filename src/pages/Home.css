@@ -1,0 +1,55 @@
+.section-products {
+    padding: 5rem 2rem;
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.newsletter-section {
+    background-color: var(--secondary);
+    color: white;
+    padding: 5rem 2rem;
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.newsletter-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: white;
+    /* Override default text color */
+}
+
+.newsletter-content p {
+    color: #94a3b8;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.newsletter-form {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 1rem;
+    outline: none;
+}
+
+.newsletter-form input:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+}
+
+@media (max-width: 600px) {
+    .newsletter-form {
+        flex-direction: column;
+    }
+}
