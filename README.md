@@ -1,16 +1,101 @@
-# React + Vite
+# KisanStore - Farmer-to-Consumer eCommerce Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+KisanStore is a comprehensive web application designed to bridge the gap between farmers (sellers) and consumers. It features a modern, responsive UI with distinct role-based dashboards for Buyers, Sellers, Internal Staff, and Super Admins.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### for Consumers (Buyers)
+*   **Modern Home Page**: Featuring TrustStrips, Popular Products, Farmer Spotlight, and FAQ.
+*   **Shop & Browse**: Filterable product listing page with categories.
+*   **Shopping Cart**: Fully functional cart with total calculation.
+*   **Checkout Flow**: Multi-step checkout process (Address, Payment Mock).
+*   **Order Management**: Track active orders and view order history.
+*   **Order Tracking**: Visual timeline of order status.
+*   **AI Chatbot**: Integrated support assistant (UI).
 
-## React Compiler
+### for Farmers (Sellers)
+*   **Dedicated Dashboard**: User-friendly interface to manage their "shop".
+*   **Product Management**: Add, edit, and list produce.
+*   **Order Fulfillment**: View new orders, update status (Packed, Shipped).
+*   **Earnings Tracker**: Visual summary of revenue and pending payouts.
+*   **Stock Management**: Low stock alerts and quick inventory updates.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### for Internal Staff (Operations)
+*   **Dense "Ops" Dashboard**: Data-heavy interface for platform efficiency.
+*   **Global Overview**: High-level stats on platform revenue, active users, and issues.
+*   **Order Pipeline**: Detailed tracking of all platform orders.
+*   **User & Seller Management**: Administer accounts and verification.
 
-## Expanding the ESLint configuration
+### for Super Admin
+*   **Restricted Access**: Hidden login portal for highest-level control.
+*   **System Health**: Monitoring server status and critical database actions.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠 Tech Stack
+
+*   **Frontend**: React.js (Vite)
+*   **Styling**: Tailwind CSS (Custom Color Palette: Emerald/Green Primary)
+*   **Icons**: Lucide React
+*   **Routing**: React Router DOM (v6)
+*   **Charts**: Recharts (Integrated for analytics)
+*   **State Management**: Context API (AuthContext, ThemeContext)
+
+---
+
+## 🔑 Access Credentials (Mock Data)
+
+The application uses local storage and mock data for demonstration. Use these credentials to test different roles:
+
+| Role | Login URL | Email | Password | Dashboard Route |
+| :--- | :--- | :--- | :--- | :--- |
+| **Seller (Farmer)** | `/login` | `farmer@kisan.com` | `admin123` | `/admin` |
+| **Internal Staff** | `/login` | `ops@kisan.com` | `admin123` | `/staff/dashboard` |
+| **Super Admin** | `/super-admin-login` | `super@kisan.com` | `admin123` | `/super-admin` |
+| **User (Buyer)** | `/login` | *(Any valid email)* | *(Any password)* | `/` (Home) |
+
+> **Note**: The login page has tabs for "Consumer" and "Seller / Staff". Use the appropriate email to be routed correctly.
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+├── components/
+│   ├── admin/       # Legacy/Shared Admin Components
+│   ├── common/      # Reusable UI (Chatbot, Footer, Navbar)
+│   ├── home/        # Landing Page Sections
+│   ├── seller/      # Farmer Dashboard Components
+│   └── staff/       # Internal Ops Dashboard Components
+├── context/         # Auth and Theme Context Providers
+├── pages/
+│   ├── admin/       # Admin & Super Admin Pages
+│   ├── auth/        # Login, Signup, Access Denied
+│   ├── seller/      # Seller Dashboard Container
+│   ├── staff/       # Staff Dashboard Container
+│   └── user/        # Buyer Pages (Home, Shop, Cart, etc.)
+└── styles/          # Global CSS and Tailwind Config
+```
+
+## 🚀 Getting Started
+
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+
+2.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
+
+3.  **Open in Browser**:
+    Visit `http://localhost:5173`
+
+---
+
+## 🎨 Design Philosophy
+
+*   **Consumer & Seller UI**: Friendly, colorful, accessible, and spacious ("Green & Gold" aesthetic).
+*   **Staff UI**: Dense, data-first, high-contrast for information density ("Slate & Blue" aesthetic).

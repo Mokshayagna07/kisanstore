@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Leaf, User, ShieldCheck } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
     const [role, setRole] = useState('user'); // 'user' or 'admin'
@@ -15,23 +15,23 @@ const Login = () => {
         e.preventDefault();
         setError('');
 
-        // Force role check logic manually for the demo to ensure correct login type
-        if (role === 'admin' && email !== 'admin@kisan.com') {
-            setError('Invalid Admin Email. Try admin@kisan.com');
-            return;
-        }
-
         const result = login(email, password);
 
         if (result.success) {
-            if (result.role === role) {
-                if (result.role === 'admin') {
+            // Redirect based on the returned role
+            switch (result.role) {
+                case 'admin': // Legacy/Seller
+                case 'seller':
                     navigate('/admin');
-                } else {
+                    break;
+                case 'internal_admin':
+                    navigate('/staff/dashboard');
+                    break;
+                case 'user':
                     navigate('/');
-                }
-            } else {
-                setError(`This account is not authorized as ${role === 'admin' ? 'Admin' : 'User'}`);
+                    break;
+                default:
+                    navigate('/');
             }
         } else {
             setError(result.message);
@@ -52,19 +52,19 @@ const Login = () => {
 
                 <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-white mb-6">Welcome Back</h2>
 
-                {/* Role Tabs */}
+                {/* Role Tabs - Simplified visually but logic relies on email lookup */}
                 <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-slate-700 rounded-xl mb-8">
                     <button
                         onClick={() => { setRole('user'); setEmail(''); setPassword(''); setError(''); }}
                         className={`flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${role === 'user' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
                     >
-                        <User size={18} /> Login
+                        <User size={18} /> User Login
                     </button>
                     <button
-                        onClick={() => { setRole('admin'); setEmail('admin@kisan.com'); setPassword(''); setError(''); }}
+                        onClick={() => { setRole('admin'); setEmail(''); setPassword(''); setError(''); }}
                         className={`flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${role === 'admin' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
                     >
-                        <ShieldCheck size={18} /> Admin / Owner
+                        <ShieldCheck size={18} /> Seller / Staff
                     </button>
                 </div>
 
@@ -84,7 +84,7 @@ const Login = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full p-3 bg-gray-50 dark:bg-slate-700 rounded-xl outline-none focus:ring-2 ring-primary/50 text-slate-900 dark:text-white transition-all"
-                            placeholder={role === 'admin' ? "admin@kisan.com" : "farmer@example.com"}
+                            placeholder={role === 'admin' ? "admin@kisan.com / ops@kisan.com" : "customer@example.com"}
                             required
                         />
                     </div>

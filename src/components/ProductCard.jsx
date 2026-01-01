@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/ProductCard.css';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 
 const ProductCard = ({ product }) => {

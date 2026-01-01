@@ -1,19 +1,40 @@
 import React from 'react';
-import Hero from '../components/Hero';
-import CategorySection from '../components/CategorySection';
-import FeaturedProducts from '../components/FeaturedProducts';
-import DealsSection from '../components/DealsSection';
+import Hero from '../../components/Hero';
+import CategorySection from '../../components/CategorySection'; // Keeping existing Category Section as requested ("Category section" was in existing sections list)
+import TrustStrip from '../../components/user/TrustStrip';
+import PopularProducts from '../../components/user/PopularProducts';
+import FarmerSpotlight from '../../components/user/FarmerSpotlight';
+import SellCta from '../../components/user/SellCta';
+import DeliveryInfo from '../../components/user/DeliveryInfo';
+import FaqSection from '../../components/user/FaqSection';
 
 const Home = () => {
     return (
         <main className="min-h-screen">
             <Hero />
-            <CategorySection />
-            <FeaturedProducts title="Best Selling Seeds" />
-            <DealsSection />
-            <FeaturedProducts title="Recommended Equipment" />
 
-            {/* Newsletter / Trust Markers */}
+            {/* 1. Trust & Value Strip (Below Hero) */}
+            <TrustStrip />
+
+            {/* Existing Categories */}
+            <CategorySection />
+
+            {/* 2. Popular Products */}
+            <PopularProducts />
+
+            {/* 3. Farmer Highlight */}
+            <FarmerSpotlight />
+
+            {/* 4. Sell on KisanStore */}
+            <SellCta />
+
+            {/* 5. Delivery & Coverage Info */}
+            <DeliveryInfo />
+
+            {/* 6. FAQ Preview */}
+            <FaqSection />
+
+            {/* Newsletter (Existing) */}
             <section className="py-16 bg-primary dark:bg-primary-dark text-white text-center">
                 <div className="container">
                     <h2 className="text-3xl font-bold mb-4">Join 50,000+ Happy Farmers</h2>

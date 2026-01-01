@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Filter, ChevronDown, Star } from 'lucide-react';
-import ProductCard from '../components/ProductCard';
-import { products } from '../data/products';
+import ProductCard from '../../components/ProductCard';
+import { products } from '../../data/products';
 
 const ProductListing = () => {
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);

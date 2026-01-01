@@ -4,14 +4,24 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import ProductListing from './pages/ProductListing';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import AdminDashboard from './pages/AdminDashboard';
+import Home from './pages/user/Home';
+import ProductListing from './pages/user/ProductListing';
+import ProductDetails from './pages/user/ProductDetails';
+import Cart from './pages/user/Cart';
+import Checkout from './pages/user/Checkout';
+import MyOrders from './pages/user/MyOrders';
+import OrderTracking from './pages/user/OrderTracking';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+import AccessDenied from './pages/auth/AccessDenied';
+import SuperAdminLogin from './pages/auth/SuperAdminLogin';
+
+import AdminDashboard from './pages/admin/AdminDashboard';
+import SellerDashboard from './pages/seller/SellerDashboard';
+import StaffDashboard from './pages/staff/StaffDashboard';
+import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
+import Chatbot from './components/common/Chatbot';
+
 import NotFound from './pages/NotFound';
 
 const ScrollToTop = () => {
@@ -38,14 +48,15 @@ const ProtectedRoute = ({ children, role }) => {
 
   if (!user) return <Navigate to="/login" />;
 
-  if (role && user.role !== role) return <Navigate to="/" />;
+  // Strict Role Check
+  if (role && user.role !== role) {
+    return <Navigate to="/access-denied" />;
+  }
 
   return children;
 };
 
 function App() {
-
-
   return (
     <AuthProvider>
       <ThemeProvider>
@@ -57,27 +68,58 @@ function App() {
               <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
               <Route path="/shop" element={<PublicLayout><ProductListing /></PublicLayout>} />
               <Route path="/product/:id" element={<PublicLayout><ProductDetails /></PublicLayout>} />
-              <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} /> {/* Should arguably be protected for User but keeping open for UX */}
+              <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} />
               <Route path="/checkout" element={
                 <ProtectedRoute role="user">
                   <PublicLayout><Checkout /></PublicLayout>
                 </ProtectedRoute>
               } />
 
+              <Route path="/orders" element={
+                <ProtectedRoute role="user">
+                  <PublicLayout><MyOrders /></PublicLayout>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/order/:id" element={
+                <ProtectedRoute role="user">
+                  <PublicLayout><OrderTracking /></PublicLayout>
+                </ProtectedRoute>
+              } />
+
               {/* Auth Routes (No Navbar/Footer) */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/access-denied" element={<AccessDenied />} />
 
-              {/* Admin Routes */}
+              {/* Private Super Admin Login */}
+              <Route path="/super-admin-login" element={<SuperAdminLogin />} />
+
+              {/* Seller Dashboard (Formerly Admin) */}
               <Route path="/admin" element={
-                <ProtectedRoute role="admin">
+                <ProtectedRoute role="seller">
                   <AdminDashboard />
+                </ProtectedRoute>
+              } />
+
+              {/* Staff / Internal Admin Route */}
+              <Route path="/staff/dashboard" element={
+                <ProtectedRoute role="internal_admin">
+                  <StaffDashboard />
+                </ProtectedRoute>
+              } />
+
+              {/* Super Admin Route */}
+              <Route path="/super-admin" element={
+                <ProtectedRoute role="super_admin">
+                  <SuperAdminDashboard />
                 </ProtectedRoute>
               } />
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Chatbot />
           </div>
         </Router>
       </ThemeProvider>

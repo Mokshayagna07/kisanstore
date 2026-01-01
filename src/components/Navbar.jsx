@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import '../styles/Navbar.css';
 import { ShoppingCart, Menu, X, Search, Sun, Moon, User, ChevronDown, Leaf, ShieldCheck, LogOut } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +24,7 @@ const Navbar = () => {
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary mr-auto lg:mr-0">
-                    <Leaf className="h-6 w-6 fill-current" />
+                    <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full object-cover" />
                     <span className="text-slate-900 dark:text-white">Kisan<span className="text-primary">Store</span></span>
                 </Link>
 
@@ -156,7 +157,7 @@ const Navbar = () => {
 
                             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Account</div>
                             <Link to="/login" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg">Sign In</Link>
-                            <Link to="/profile" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg">My Orders</Link>
+                            <Link to="/orders" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg">My Orders</Link>
                         </div>
                     </div>
                 </div>
