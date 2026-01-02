@@ -1,70 +1,98 @@
-import React from 'react';
+import React, { useState } from 'react';
+import {
+    LayoutDashboard,
+    Lock
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, Users, Server, Activity, LogOut } from 'lucide-react';
+import AdminHeader from '../../components/admin/AdminHeader';
+import AdminSidebar from '../../components/admin/AdminSidebar';
+import SystemOverview from '../../components/admin/SystemOverview';
+import FinancialPanel from '../../components/admin/FinancialPanel';
+import UserControl from '../../components/admin/UserControl';
+import SecurityLogs from '../../components/admin/SecurityLogs';
+import SystemHealth from '../../components/admin/SystemHealth';
+import ReportsPanel from '../../components/admin/ReportsPanel';
+import GlobalSettings from '../../components/admin/GlobalSettings';
 
 const SuperAdminDashboard = () => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [activeTab, setActiveTab] = useState('dashboard');
     const { logout } = useAuth();
 
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'dashboard':
+                return (
+                    <div className="space-y-8">
+                        <SystemOverview />
+                        <SystemHealth />
+                    </div>
+                );
+            case 'revenue': return <FinancialPanel />;
+            case 'users': return <UserControl />;
+            case 'logs': return <SecurityLogs />;
+            case 'health': return <SystemHealth />;
+            case 'reports': return <ReportsPanel />;
+            case 'settings': return <GlobalSettings />;
+            default: return <SystemOverview />;
+        }
+    };
+
+    const getPageTitle = () => {
+        switch (activeTab) {
+            case 'revenue': return 'Platform Revenue Control';
+            case 'users': return 'Global User Management';
+            case 'logs': return 'Security & Audit Logs';
+            case 'health': return 'System Health Status';
+            case 'reports': return 'System Reports & Analytics';
+            case 'settings': return 'Global Platform Settings';
+            default: return 'Super Admin Control Panel';
+        }
+    };
+
+    const getPageDesc = () => {
+        switch (activeTab) {
+            case 'dashboard': return 'Overview of system performance and health.';
+            default: return 'Manage detailed system configurations and controls.';
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-300 font-mono">
-            <header className="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black">
-                <div className="flex items-center gap-3">
-                    <Shield className="text-red-600" size={24} />
-                    <h1 className="text-lg font-bold tracking-widest uppercase">Super<span className="text-red-600">Admin</span> Core</h1>
-                </div>
-                <button onClick={logout} className="text-xs uppercase hover:text-red-500 font-bold tracking-wider flex items-center gap-2">
-                    <LogOut size={14} /> Terminate Session
-                </button>
-            </header>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 font-sans">
+            <AdminHeader toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
 
-            <main className="p-8 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-zinc-900 p-6 border border-zinc-800 rounded">
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-xs uppercase text-zinc-500 font-bold">System Status</h3>
-                            <Activity className="text-green-500" size={16} />
-                        </div>
-                        <p className="text-3xl font-bold text-white mb-2">OPERATIONAL</p>
-                        <p className="text-xs text-zinc-600">Uptime: 99.99%</p>
-                    </div>
-                    <div className="bg-zinc-900 p-6 border border-zinc-800 rounded">
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-xs uppercase text-zinc-500 font-bold">Global Users</h3>
-                            <Users className="text-blue-500" size={16} />
-                        </div>
-                        <p className="text-3xl font-bold text-white mb-2">142,059</p>
-                        <p className="text-xs text-zinc-600">Across all roles</p>
-                    </div>
-                    <div className="bg-zinc-900 p-6 border border-zinc-800 rounded">
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-xs uppercase text-zinc-500 font-bold">Server Load</h3>
-                            <Server className="text-orange-500" size={16} />
-                        </div>
-                        <p className="text-3xl font-bold text-white mb-2">34%</p>
-                        <p className="text-xs text-zinc-600">Optimal Performance</p>
-                    </div>
-                </div>
+            <AdminSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                isSidebarOpen={isSidebarOpen}
+                logout={logout}
+            />
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded p-6">
-                    <h2 className="text-sm font-bold uppercase text-red-500 mb-6 border-b border-zinc-800 pb-2">Critical Actions</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <button className="p-4 border border-zinc-800 hover:border-red-900 hover:bg-zinc-950 transition-all text-left group">
-                            <span className="block text-xs text-zinc-500 mb-1 group-hover:text-red-500">Database</span>
-                            <span className="font-bold text-white">Flush Cache</span>
-                        </button>
-                        <button className="p-4 border border-zinc-800 hover:border-red-900 hover:bg-zinc-950 transition-all text-left group">
-                            <span className="block text-xs text-zinc-500 mb-1 group-hover:text-red-500">Security</span>
-                            <span className="font-bold text-white">Audit Logs</span>
-                        </button>
-                        <button className="p-4 border border-zinc-800 hover:border-red-900 hover:bg-zinc-950 transition-all text-left group">
-                            <span className="block text-xs text-zinc-500 mb-1 group-hover:text-red-500">Users</span>
-                            <span className="font-bold text-white">Ban User</span>
-                        </button>
-                        <button className="p-4 border border-zinc-800 hover:border-red-900 hover:bg-zinc-950 transition-all text-left group">
-                            <span className="block text-xs text-zinc-500 mb-1 group-hover:text-red-500">System</span>
-                            <span className="font-bold text-white">Maintenance Mode</span>
-                        </button>
+            <main
+                className={`pt-20 px-6 transition-all duration-300 
+                ${isSidebarOpen ? 'ml-64' : 'ml-20'} 
+                w-[calc(100%-${isSidebarOpen ? '256px' : '80px'})]`}
+            >
+                <div className="max-w-7xl mx-auto pb-10">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white capitalize">
+                                {getPageTitle()}
+                            </h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                {getPageDesc()}
+                            </p>
+                        </div>
+                        {activeTab === 'dashboard' && (
+                            <div className="flex items-center gap-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 dark:border-red-800/30">
+                                <Lock size={16} /> Admin Mode Active
+                            </div>
+                        )}
                     </div>
+
+                    {renderContent()}
                 </div>
             </main>
         </div>
