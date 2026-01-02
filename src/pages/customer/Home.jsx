@@ -1,12 +1,12 @@
 import React from 'react';
 import Hero from '../../components/Hero';
 import CategorySection from '../../components/CategorySection'; // Keeping existing Category Section as requested ("Category section" was in existing sections list)
-import TrustStrip from '../../components/user/TrustStrip';
-import PopularProducts from '../../components/user/PopularProducts';
-import FarmerSpotlight from '../../components/user/FarmerSpotlight';
-import SellCta from '../../components/user/SellCta';
-import DeliveryInfo from '../../components/user/DeliveryInfo';
-import FaqSection from '../../components/user/FaqSection';
+import TrustStrip from '../../components/customer/TrustStrip';
+import PopularProducts from '../../components/customer/PopularProducts';
+import FarmerSpotlight from '../../components/customer/FarmerSpotlight';
+import SellCta from '../../components/customer/SellCta';
+import DeliveryInfo from '../../components/customer/DeliveryInfo';
+import FaqSection from '../../components/customer/FaqSection';
 
 const Home = () => {
     return (
