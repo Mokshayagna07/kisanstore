@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import SellerHeader from '../../components/seller/SellerHeader';
 import SellerSidebar from '../../components/seller/SellerSidebar';
 import SellerDashboardOverview from '../../components/seller/SellerDashboardOverview';
-import ProductsManager from '../../components/admin/ProductsManager'; // Reuse or recreate for seller-specific simplified view? Prompt asks for separate.
-import InventoryManager from '../../components/admin/InventoryManager'; // Reuse?
-import OrdersManager from '../../components/admin/OrdersManager'; // Reuse?
-import ComplaintManager from '../../components/admin/ComplaintManager';
-import AdminSettings from '../../components/admin/AdminSettings';
+
 // Prompt asks to create new components in seller folder. I should create placeholders for them.
 import SellerProducts from '../../components/seller/SellerProducts';
 import SellerOrders from '../../components/seller/SellerOrders';

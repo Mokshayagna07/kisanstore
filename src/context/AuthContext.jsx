@@ -21,41 +21,25 @@ export const AuthProvider = ({ children }) => {
     const login = (email, password) => {
         // Mock Authentication Logic
 
-        // 1. Super Admin (Should ideally use a different login page, but defining role for context usage)
-        if (email === 'super@kisan.com' && password === 'admin123') {
+        // 1. Super Admin
+        if (email === 'admin@kisan.com' && password === 'admin123') {
             const superUser = { name: 'Super Admin', email, role: 'super_admin' };
             setUser(superUser);
             localStorage.setItem('kisan_user', JSON.stringify(superUser));
             return { success: true, role: 'super_admin' };
         }
 
-        // 2. Internal Admin / Operations
-        if (email === 'ops@kisan.com' && password === 'admin123') {
-            const opsUser = { name: 'Internal Admin', email, role: 'internal_admin' };
+        // 2. Internal Admin / Operations -> Now 'staff'
+        if (email === 'staff@kisan.com' && password === 'staff123') {
+            const opsUser = { name: 'Internal Staff', email, role: 'staff' };
             setUser(opsUser);
             localStorage.setItem('kisan_user', JSON.stringify(opsUser));
-            return { success: true, role: 'internal_admin' };
+            return { success: true, role: 'staff' };
         }
 
-        // 3. Seller (Farmer) - Previously called 'admin' role in this codebase
-        // For backwards compatibility with existing UI that checks role === 'admin', 
-        // I will keep role as 'admin' for Seller Dashboard, or I must update App.jsx too.
-        // Prompt says "Seller -> Seller Dashboard".
-        // Let's stick to 'seller' role for clarity if I can update App.jsx easily. 
-        // Actually, to be safe and clean, let's use 'seller' as the role name.
-        if (email === 'farmer@kisan.com' && password === 'admin123') {
-            const sellerUser = { name: 'Farmer Seller', email, role: 'seller' };
-            setUser(sellerUser);
-            localStorage.setItem('kisan_user', JSON.stringify(sellerUser));
-            return { success: true, role: 'seller' };
-        }
-
-        // Legacy Admin credential support (treating as Seller for now based on previous flow, or Internal?)
-        // The previous code had admin@kisan.com as "Admin". 
-        // Prompt says "Internal Admin... Use the same login page".
-        // Let's map 'admin@kisan.com' to 'seller' based on "Farmer User option appears only if role = Seller".
-        if (email === 'admin@kisan.com' && password === 'admin123') {
-            const sellerUser = { name: 'Farmer Admin', email, role: 'seller' };
+        // 3. Seller (Farmer)
+        if (email === 'seller@kisan.com' && password === 'seller123') {
+            const sellerUser = { name: 'Verified Seller', email, role: 'seller' };
             setUser(sellerUser);
             localStorage.setItem('kisan_user', JSON.stringify(sellerUser));
             return { success: true, role: 'seller' };

@@ -4,19 +4,19 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/user/Home';
-import ProductListing from './pages/user/ProductListing';
-import ProductDetails from './pages/user/ProductDetails';
-import Cart from './pages/user/Cart';
-import Checkout from './pages/user/Checkout';
-import MyOrders from './pages/user/MyOrders';
-import OrderTracking from './pages/user/OrderTracking';
+import Home from './pages/customer/Home';
+import ProductListing from './pages/customer/ProductListing';
+import ProductDetails from './pages/customer/ProductDetails';
+import Cart from './pages/customer/Cart';
+import Checkout from './pages/customer/Checkout';
+import MyOrders from './pages/customer/MyOrders';
+import OrderTracking from './pages/customer/OrderTracking';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import AccessDenied from './pages/auth/AccessDenied';
 import SuperAdminLogin from './pages/auth/SuperAdminLogin';
 
-import AdminDashboard from './pages/admin/AdminDashboard';
+
 import SellerDashboard from './pages/seller/SellerDashboard';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
@@ -98,13 +98,13 @@ function App() {
               {/* Seller Dashboard (Formerly Admin) */}
               <Route path="/admin" element={
                 <ProtectedRoute role="seller">
-                  <AdminDashboard />
+                  <SellerDashboard />
                 </ProtectedRoute>
               } />
 
               {/* Staff / Internal Admin Route */}
               <Route path="/staff/dashboard" element={
-                <ProtectedRoute role="internal_admin">
+                <ProtectedRoute role="staff">
                   <StaffDashboard />
                 </ProtectedRoute>
               } />

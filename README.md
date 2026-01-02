@@ -47,12 +47,12 @@ KisanStore is a comprehensive web application designed to bridge the gap between
 
 The application uses local storage and mock data for demonstration. Use these credentials to test different roles:
 
-| Role | Login URL | Email | Password | Dashboard Route |
-| :--- | :--- | :--- | :--- | :--- |
-| **Seller (Farmer)** | `/login` | `farmer@kisan.com` | `admin123` | `/admin` |
-| **Internal Staff** | `/login` | `ops@kisan.com` | `admin123` | `/staff/dashboard` |
-| **Super Admin** | `/super-admin-login` | `super@kisan.com` | `admin123` | `/super-admin` |
-| **User (Buyer)** | `/login` | *(Any valid email)* | *(Any password)* | `/` (Home) |
+| Role | Email | Password | Description |
+|------|-------------|----------|-------------|
+| **User** | `user@test.com` | `user123` | Standard Customer account |
+| **Seller** | `seller@kisan.com` | `seller123` | Farmer / Seller account with dashboard |
+| **Staff** | `staff@kisan.com` | `staff123` | Internal Staff / Operations |
+| **Admin** | `admin@kisan.com` | `admin123` | Super Admin with full access |
 
 > **Note**: The login page has tabs for "Consumer" and "Seller / Staff". Use the appropriate email to be routed correctly.
 
