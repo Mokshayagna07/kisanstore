@@ -19,7 +19,7 @@ import SuperAdminLogin from './pages/auth/SuperAdminLogin';
 
 import SellerDashboard from './pages/seller/SellerDashboard';
 import StaffDashboard from './pages/staff/StaffDashboard';
-import SuperAdminDashboard from './pages/admin/SuperAdminDashboard';
+import AdminControlDashboard from './pages/admin/AdminControlDashboard';
 import Chatbot from './components/common/Chatbot';
 
 import NotFound from './pages/NotFound';
@@ -92,7 +92,7 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/access-denied" element={<AccessDenied />} />
 
-              {/* Private Super Admin Login */}
+              {/* Private Admin Login */}
               <Route path="/super-admin-login" element={<SuperAdminLogin />} />
 
               {/* Seller Dashboard (Formerly Admin) */}
@@ -109,10 +109,10 @@ function App() {
                 </ProtectedRoute>
               } />
 
-              {/* Super Admin Route */}
+              {/* Admin Route */}
               <Route path="/super-admin" element={
                 <ProtectedRoute role="super_admin">
-                  <SuperAdminDashboard />
+                  <AdminControlDashboard />
                 </ProtectedRoute>
               } />
 

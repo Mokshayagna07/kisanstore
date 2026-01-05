@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
 
         // 1. Super Admin
         if (email === 'admin@kisan.com' && password === 'admin123') {
-            const superUser = { name: 'Super Admin', email, role: 'super_admin' };
+            const superUser = { name: 'Admin', email, role: 'super_admin' };
             setUser(superUser);
             localStorage.setItem('kisan_user', JSON.stringify(superUser));
             return { success: true, role: 'super_admin' };

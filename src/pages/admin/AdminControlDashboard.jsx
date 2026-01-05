@@ -13,8 +13,9 @@ import SecurityLogs from '../../components/admin/SecurityLogs';
 import SystemHealth from '../../components/admin/SystemHealth';
 import ReportsPanel from '../../components/admin/ReportsPanel';
 import GlobalSettings from '../../components/admin/GlobalSettings';
+import AdminProfile from '../../components/admin/AdminProfile';
 
-const SuperAdminDashboard = () => {
+const AdminControlDashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('dashboard');
     const { logout } = useAuth();
@@ -36,6 +37,7 @@ const SuperAdminDashboard = () => {
             case 'health': return <SystemHealth />;
             case 'reports': return <ReportsPanel />;
             case 'settings': return <GlobalSettings />;
+            case 'profile': return <AdminProfile />;
             default: return <SystemOverview />;
         }
     };
@@ -48,20 +50,26 @@ const SuperAdminDashboard = () => {
             case 'health': return 'System Health Status';
             case 'reports': return 'System Reports & Analytics';
             case 'settings': return 'Global Platform Settings';
-            default: return 'Super Admin Control Panel';
+            case 'profile': return 'My Admin Profile';
+            default: return 'Admin Control Panel';
         }
     };
 
     const getPageDesc = () => {
         switch (activeTab) {
             case 'dashboard': return 'Overview of system performance and health.';
+            case 'profile': return 'Manage your account details and security settings.';
             default: return 'Manage detailed system configurations and controls.';
         }
     };
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 font-sans">
-            <AdminHeader toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+            <AdminHeader
+                toggleSidebar={toggleSidebar}
+                isSidebarOpen={isSidebarOpen}
+                onNavigate={setActiveTab}
+            />
 
             <AdminSidebar
                 activeTab={activeTab}
@@ -99,4 +107,4 @@ const SuperAdminDashboard = () => {
     );
 };
 
-export default SuperAdminDashboard;
+export default AdminControlDashboard;

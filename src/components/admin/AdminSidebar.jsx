@@ -19,7 +19,6 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, logout }) => {
         { id: 'logs', label: 'Security Logs', icon: ShieldAlert },
         { id: 'health', label: 'System Health', icon: Activity },
         { id: 'reports', label: 'Reports', icon: FileText },
-        { id: 'settings', label: 'Global Settings', icon: Settings },
     ];
 
     return (

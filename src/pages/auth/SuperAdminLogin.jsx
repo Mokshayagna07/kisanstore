@@ -24,7 +24,7 @@ const SuperAdminLogin = () => {
         if (result.success && result.role === 'super_admin') {
             navigate('/super-admin');
         } else {
-            setError('Invalid Super Admin Credentials');
+            setError('Invalid Admin Credentials');
         }
     };
 
