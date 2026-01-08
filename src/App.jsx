@@ -16,6 +16,7 @@ import Signup from './pages/auth/Signup';
 import AccessDenied from './pages/auth/AccessDenied';
 import SuperAdminLogin from './pages/auth/SuperAdminLogin';
 
+import UserProfile from './pages/customer/UserProfile';
 
 import SellerDashboard from './pages/seller/SellerDashboard';
 import StaffDashboard from './pages/staff/StaffDashboard';
@@ -72,6 +73,12 @@ function App() {
               <Route path="/checkout" element={
                 <ProtectedRoute role="user">
                   <PublicLayout><Checkout /></PublicLayout>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/profile" element={
+                <ProtectedRoute role="user">
+                  <PublicLayout><UserProfile /></PublicLayout>
                 </ProtectedRoute>
               } />
 

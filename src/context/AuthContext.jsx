@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
+import {
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -10,59 +17,106 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage for existing session
-        const storedUser = localStorage.getItem('kisan_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        // Listen for Firebase Auth state changes
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                // User is signed in, fetch additional details (role) from Firestore
+                try {
+                    const userDocRef = doc(db, 'users', firebaseUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setUser({
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email,
+                            ...userData // spread name, role, etc.
+                        });
+                    } else {
+                        // Fallback if firestore doc missing (shouldn't happen ideally)
+                        setUser({
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email,
+                            role: 'user', // Default to user
+                            name: firebaseUser.displayName || 'User'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                    // Still set basic user from Auth to allow access, maybe restricted
+                    setUser(firebaseUser);
+                }
+            } else {
+                // User is signed out
+                setUser(null);
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
-    const login = (email, password) => {
-        // Mock Authentication Logic
+    const login = async (email, password) => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-        // 1. Super Admin
-        if (email === 'admin@kisan.com' && password === 'admin123') {
-            const superUser = { name: 'Admin', email, role: 'super_admin' };
-            setUser(superUser);
-            localStorage.setItem('kisan_user', JSON.stringify(superUser));
-            return { success: true, role: 'super_admin' };
+            // Fetch role immediately for redirect logic
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            let role = 'user';
+            if (userDoc.exists()) {
+                role = userDoc.data().role || 'user';
+            }
+
+            return { success: true, role };
+        } catch (error) {
+            console.error("Login Error:", error);
+            // Map Firebase errors to user-friendly messages
+            let message = "Failed to log in";
+            if (error.code === 'auth/invalid-credential') message = "Invalid email or password";
+            if (error.code === 'auth/user-not-found') message = "No user found with this email";
+            if (error.code === 'auth/wrong-password') message = "Incorrect password";
+            return { success: false, message };
         }
-
-        // 2. Internal Admin / Operations -> Now 'staff'
-        if (email === 'staff@kisan.com' && password === 'staff123') {
-            const opsUser = { name: 'Internal Staff', email, role: 'staff' };
-            setUser(opsUser);
-            localStorage.setItem('kisan_user', JSON.stringify(opsUser));
-            return { success: true, role: 'staff' };
-        }
-
-        // 3. Seller (Farmer)
-        if (email === 'seller@kisan.com' && password === 'seller123') {
-            const sellerUser = { name: 'Verified Seller', email, role: 'seller' };
-            setUser(sellerUser);
-            localStorage.setItem('kisan_user', JSON.stringify(sellerUser));
-            return { success: true, role: 'seller' };
-        }
-
-        // 4. Buyer (User)
-        if (email.includes('@')) {
-            const normalUser = { name: 'Buyer User', email, role: 'user' };
-            setUser(normalUser);
-            localStorage.setItem('kisan_user', JSON.stringify(normalUser));
-            return { success: true, role: 'user' };
-        }
-
-        return { success: false, message: 'Invalid credentials' };
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('kisan_user');
+    const signup = async (name, email, password, role = 'user') => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Create user document in Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                name,
+                email,
+                role,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Signup Error:", error);
+            let message = "Failed to sign up";
+            if (error.code === 'auth/email-already-in-use') message = "Email is already in use";
+            if (error.code === 'auth/weak-password') message = "Password should be at least 6 characters";
+            return { success: false, message };
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await signOut(auth);
+            setUser(null);
+        } catch (error) {
+            console.error("Logout Error:", error);
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
