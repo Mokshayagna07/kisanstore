@@ -1,13 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Menu, Search, User, ShieldCheck, ChevronDown, LogOut, Settings as SettingsIcon, ShieldAlert, Activity, DollarSign } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { db } from '../../firebase';
+import { collection, query, where, onSnapshot, orderBy, limit, writeBatch, doc } from 'firebase/firestore';
+
 
 const AdminHeader = ({ toggleSidebar, isSidebarOpen, onNavigate }) => {
     const { logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+    // Real-time Notifications Listener
+    useEffect(() => {
+        try {
+            const q = query(
+                collection(db, 'orders'),
+                where('status', '==', 'pending'),
+                orderBy('createdAt', 'desc'), // Enabled: Requires Firestore Index
+                limit(10)
+            );
+
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const notifs = snapshot.docs
+                    .filter(doc => !doc.data().adminViewed) // Filter out viewed notifications locally
+                    .map(doc => ({
+                        id: doc.id,
+                        type: 'order',
+                        title: 'New Order Received',
+                        message: `Order #${doc.id.slice(0, 8)} needs processing.`,
+                        time: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : new Date(),
+                        amount: doc.data().totalAmount || 0
+                    }));
+                setNotifications(notifs);
+
+            }, (error) => {
+                console.error("Notification Listener Error:", error);
+            });
+
+            return () => unsubscribe();
+        } catch (err) {
+            console.error("Setup Error:", err);
+        }
+    }, []);
+
+    // Start: Mark All As Read Logic
+    const handleMarkAllRead = async () => {
+        try {
+            if (notifications.length === 0) return;
+            const batch = writeBatch(db);
+            notifications.forEach(notif => {
+                const docRef = doc(db, 'orders', notif.id);
+                batch.update(docRef, { adminViewed: true });
+            });
+            await batch.commit();
+            // Optimistic update not needed as Snapshot will trigger
+        } catch (error) {
+            console.error("Error marking read:", error);
+        }
+    };
+    // End: Mark All As Read Logic
+
+    // Helper to format time relative
+    const formatTime = (date) => {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        if (diffInSeconds < 60) return 'Just Now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} mins ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+        return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    };
 
     return (
         <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900 text-white z-50 shadow-md border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 transition-all duration-300">
@@ -50,7 +114,9 @@ const AdminHeader = ({ toggleSidebar, isSidebarOpen, onNavigate }) => {
                         className="relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                     >
                         <Bell size={20} />
-                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-slate-900"></span>
+                        {notifications.length > 0 && (
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-slate-900 animate-pulse"></span>
+                        )}
                     </button>
 
                     {/* Notification Dropdown */}
@@ -59,62 +125,45 @@ const AdminHeader = ({ toggleSidebar, isSidebarOpen, onNavigate }) => {
                             <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)}></div>
                             <div className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
                                 <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">Notifications</h3>
-                                    <button className="text-xs text-primary font-medium hover:underline">Mark all as read</button>
+                                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">Notifications ({notifications.length})</h3>
+                                    <button
+                                        onClick={handleMarkAllRead}
+                                        className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                                    >
+                                        Mark all as read
+                                    </button>
                                 </div>
 
                                 <div className="max-h-[70vh] overflow-y-auto">
-                                    {/* Critical Alert */}
-                                    <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-red-50 dark:bg-red-900/10 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                                        <div className="flex gap-3">
-                                            <div className="mt-1">
-                                                <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                                    <ShieldAlert size={16} className="text-red-600 dark:text-red-400" />
+                                    {notifications.length === 0 ? (
+                                        <div className="p-8 text-center text-slate-400 text-sm">No new notifications</div>
+                                    ) : (
+                                        notifications.map(notif => (
+                                            <div key={notif.id} className="p-4 border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                                <div className="flex gap-3">
+                                                    <div className="mt-1">
+                                                        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                                            <DollarSign size={16} className="text-blue-600 dark:text-blue-400" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">{notif.title}</p>
+                                                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{notif.message}</p>
+                                                        <p className="text-[10px] text-slate-400 mt-2">{formatTime(notif.time)}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">Critical Security Alert</p>
-                                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Multiple failed login attempts detected from IP 192.168.1.105. System Lockdown initiated.</p>
-                                                <p className="text-[10px] text-red-500 font-bold mt-2">Just Now</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Warning/System Alert */}
-                                    <div className="p-4 border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                                        <div className="flex gap-3">
-                                            <div className="mt-1">
-                                                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                                                    <Activity size={16} className="text-amber-600 dark:text-amber-400" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">High CPU Usage</p>
-                                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Server instance 'kisan-core-01' is running at 92% capacity.</p>
-                                                <p className="text-[10px] text-slate-400 mt-2">15 mins ago</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Info/Order Alert */}
-                                    <div className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                                        <div className="flex gap-3">
-                                            <div className="mt-1">
-                                                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                                    <DollarSign size={16} className="text-blue-600 dark:text-blue-400" />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-800 dark:text-white mb-1">New Bulk Order</p>
-                                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Received order #ORD-2024-001 valued at ₹25,000 from Seller A.</p>
-                                                <p className="text-[10px] text-slate-400 mt-2">1 hour ago</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        ))
+                                    )}
                                 </div>
 
-                                <div className="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center">
-                                    <button className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">View All Notifications</button>
+                                <div className="p-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                                    <button
+                                        onClick={() => onNavigate('revenue')}
+                                        className="w-full text-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline py-1"
+                                    >
+                                        View All Notifications
+                                    </button>
                                 </div>
                             </div>
                         </>

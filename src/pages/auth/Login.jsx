@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Briefcase, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { doc, setDoc } from 'firebase/firestore';
+import { db, auth } from '../../firebase';
 
 const Login = () => {
     const { login, logout } = useAuth();
@@ -19,6 +21,24 @@ const Login = () => {
     const [officeEmail, setOfficeEmail] = useState('');
     const [officePassword, setOfficePassword] = useState('');
     const [officeError, setOfficeError] = useState('');
+    const [showRepair, setShowRepair] = useState(false);
+
+    const handleAdminRepair = async () => {
+        if (!auth.currentUser) return;
+        try {
+            await setDoc(doc(db, 'users', auth.currentUser.uid), {
+                email: 'gompasaikumar7@kisanstore.com',
+                role: 'admin',
+                name: 'System Admin',
+                repairedAt: new Date().toISOString()
+            }, { merge: true });
+            alert("Database repaired! Please click 'Authenticate' again.");
+            setShowRepair(false);
+            setOfficeError('');
+        } catch (err) {
+            alert("Repair failed: " + err.message);
+        }
+    };
 
     const handleLogin = async (e, type) => {
         e.preventDefault();
@@ -71,6 +91,13 @@ const Login = () => {
             if (selectedRole === 'admin' && (role !== 'admin' && role !== 'super_admin')) isRoleMismatch = true;
 
             if (isRoleMismatch) {
+                // SPECIAL FIX: If specific admin logic, allow repair
+                if (selectedRole === 'admin' && email.trim() === 'gompasaikumar7@kisanstore.com') {
+                    setShowRepair(true);
+                    setError(`System Error: Database ID Mismatch. Click 'Auto-Fix' below.`);
+                    return; // Do not logout, so we can fix it
+                }
+
                 await logout(); // Sign out the mis-logged user
                 setError(`Access Denied: You are trying to login as ${selectedRole.toUpperCase()}, but your account is ${role.toUpperCase()}. Please use the correct tab.`);
                 return;
@@ -79,6 +106,8 @@ const Login = () => {
             // Valid Login - Redirect
             switch (role) {
                 case 'admin':
+                    navigate('/super-admin');
+                    break;
                 case 'seller':
                     navigate('/admin');
                     break;
@@ -233,6 +262,15 @@ const Login = () => {
                         {officeError && (
                             <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm text-center">
                                 {officeError}
+                                {showRepair && (
+                                    <button
+                                        type="button"
+                                        onClick={handleAdminRepair}
+                                        className="mt-2 text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 block mx-auto"
+                                    >
+                                        Auto-Fix Database Record
+                                    </button>
+                                )}
                             </div>
                         )}
                         <form onSubmit={(e) => handleLogin(e, 'office')} className="space-y-5">

@@ -42,16 +42,20 @@ const PublicLayout = ({ children }) => (
 );
 
 // Protected Route Component
+// Protected Route Component
 const ProtectedRoute = ({ children, role }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div></div>;
 
   if (!user) return <Navigate to="/login" />;
 
-  // Strict Role Check
-  if (role && user.role !== role) {
-    return <Navigate to="/access-denied" />;
+  // Strict Role Check (supports array or string)
+  if (role) {
+    const allowedRoles = Array.isArray(role) ? role : [role];
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/access-denied" />;
+    }
   }
 
   return children;
@@ -102,7 +106,7 @@ function App() {
               {/* Private Admin Login */}
               <Route path="/super-admin-login" element={<SuperAdminLogin />} />
 
-              {/* Seller Dashboard (Formerly Admin) */}
+              {/* Seller Dashboard (Mapped to /admin for historical reasons, should be /seller) */}
               <Route path="/admin" element={
                 <ProtectedRoute role="seller">
                   <SellerDashboard />
@@ -116,9 +120,9 @@ function App() {
                 </ProtectedRoute>
               } />
 
-              {/* Admin Route */}
+              {/* Main Admin Dashboard (Accessible by admin and super_admin) */}
               <Route path="/super-admin" element={
-                <ProtectedRoute role="super_admin">
+                <ProtectedRoute role={['admin', 'super_admin']}>
                   <AdminControlDashboard />
                 </ProtectedRoute>
               } />
